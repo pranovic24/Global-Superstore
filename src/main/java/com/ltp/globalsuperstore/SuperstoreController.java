@@ -1,13 +1,16 @@
 package com.ltp.globalsuperstore;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class SuperstoreController {
@@ -24,15 +27,20 @@ public class SuperstoreController {
     }
 
     @PostMapping("/submitItem") 
-    public String handleSubmit(Item item) {
+    public String handleSubmit(Item item, RedirectAttributes redirectAttributes) {
         // System.out.println(item.getId());
         int index = getIndexFromId(item.getId());
+        String status = Constants.SUCCESS_STATUS;
         if (index == Constants.NOT_FOUND) {
             items.add(item);
-        } else {
+        } else if (within5Days(item.getDate(), items.get(index).getDate())) {
             items.set(index, item);
+        } else {
+            status = Constants.FAILED_STATUS;
         }
         // items.add(item);
+        // save flash attribute status: success
+        redirectAttributes.addFlashAttribute("status", status);
         return "redirect:/inventory";
     }
     
@@ -49,6 +57,11 @@ public class SuperstoreController {
             }
         }
         return Constants.NOT_FOUND;
+    }
+
+    public boolean within5Days(Date newDate, Date oldDate) {
+        long diff = Math.abs(newDate.getTime() - oldDate.getTime());
+        return (int) (TimeUnit.MILLISECONDS.toDays(diff)) <= 5;
     }
 
 }
