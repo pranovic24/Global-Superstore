@@ -12,8 +12,8 @@
             <h2> Global Superstore </h2>
             <form method="post">
                 <select class="select">
-                    <option style="color:blue">Choose Category</option>
-                    <option> Placeholder </option>
+                    <option style="color:blue" value="">Choose Category</option>
+                    <option th:each="category: ${categories}" th:text="${category}" th:value="${category}">Placeholder</option>
                 </select>
                 <input type="text" placeholder="Name">
                 <input class="half" type="text" placeholder="Price">
